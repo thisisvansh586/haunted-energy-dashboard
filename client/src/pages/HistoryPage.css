@@ -1,0 +1,217 @@
+.history-page {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.history-page h1 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  text-shadow: 0 0 10px var(--neon-green);
+  animation: slideInLeft 0.6s ease-out;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.date-controls {
+  display: flex;
+  gap: 1rem;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+  animation: slideInRight 0.6s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.date-controls input[type="date"] {
+  padding: 0.75rem 1rem;
+  border: 2px solid #4CC9F0;
+  background: rgba(76, 201, 240, 0.1);
+  color: #E0E0E0;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.date-controls input[type="date"]:hover {
+  background: rgba(76, 201, 240, 0.2);
+  box-shadow: 0 0 15px rgba(76, 201, 240, 0.3);
+}
+
+.date-controls input[type="date"]:focus {
+  outline: none;
+  border-color: #00FF9C;
+  box-shadow: 0 0 20px rgba(0, 255, 156, 0.4);
+}
+
+.date-controls button {
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #00FF9C;
+  background: linear-gradient(135deg, rgba(0, 255, 156, 0.2) 0%, rgba(76, 201, 240, 0.1) 100%);
+  color: #00FF9C;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.date-controls button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(0, 255, 156, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.date-controls button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.date-controls button:hover {
+  background: linear-gradient(135deg, rgba(0, 255, 156, 0.3) 0%, rgba(76, 201, 240, 0.2) 100%);
+  box-shadow: 0 0 25px rgba(0, 255, 156, 0.5);
+  transform: translateY(-2px);
+}
+
+.telemetry-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  animation: fadeIn 0.8s ease-out 0.3s backwards;
+}
+
+.telemetry-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, rgba(76, 201, 240, 0.05) 0%, rgba(0, 255, 156, 0.02) 100%);
+  border: 1px solid rgba(76, 201, 240, 0.2);
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.telemetry-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 3px;
+  background: linear-gradient(180deg, #4CC9F0 0%, #00FF9C 100%);
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
+}
+
+.telemetry-item:hover::before {
+  transform: scaleY(1);
+}
+
+.telemetry-item:hover {
+  background: linear-gradient(135deg, rgba(76, 201, 240, 0.1) 0%, rgba(0, 255, 156, 0.05) 100%);
+  border-color: #4CC9F0;
+  transform: translateX(8px);
+  box-shadow: 0 4px 20px rgba(76, 201, 240, 0.2);
+}
+
+.telemetry-item span:first-child {
+  font-size: 1rem;
+  color: #8B92A8;
+  transition: color 0.3s;
+}
+
+.telemetry-item:hover span:first-child {
+  color: #4CC9F0;
+}
+
+.telemetry-item span:last-child {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #00FF9C;
+  text-shadow: 0 0 10px rgba(0, 255, 156, 0.3);
+  transition: all 0.3s;
+}
+
+.telemetry-item:hover span:last-child {
+  font-size: 1.35rem;
+  text-shadow: 0 0 15px rgba(0, 255, 156, 0.5);
+}
+
+/* Empty State */
+.telemetry-list:empty::after {
+  content: 'No telemetry data available for the selected date range';
+  display: block;
+  text-align: center;
+  padding: 3rem;
+  color: #8B92A8;
+  font-size: 1.1rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .history-page {
+    padding: 1rem;
+  }
+  
+  .history-page h1 {
+    font-size: 2rem;
+  }
+  
+  .date-controls {
+    flex-direction: column;
+  }
+  
+  .date-controls input[type="date"],
+  .date-controls button {
+    width: 100%;
+  }
+  
+  .telemetry-item {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+}

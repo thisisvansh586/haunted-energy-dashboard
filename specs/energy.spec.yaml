@@ -1,0 +1,511 @@
+# Haunted Home Energy Dashboard Specification
+# A spooky-themed energy monitoring dashboard for tracking device power consumption and anomalies
+
+project:
+  name: "Haunted Home Energy Dashboard"
+  version: "1.0.0"
+  description: "Real-time energy monitoring dashboard with anomaly detection for smart home devices"
+  theme: "haunted"
+
+# Data Models
+models:
+  # Device Model - Represents a smart home device being monitored
+  device:
+    description: "Smart home device with power monitoring capabilities"
+    fields:
+      id:
+        type: "string"
+        description: "Unique identifier for the device"
+        required: true
+        example: "dev_001"
+      
+      name:
+        type: "string"
+        description: "Human-readable device name"
+        required: true
+        example: "Kitchen Fridge"
+      
+      room:
+        type: "string"
+        description: "Room location of the device"
+        required: true
+        example: "Kitchen"
+      
+      powerW:
+        type: "number"
+        description: "Current power consumption in watts"
+        required: true
+        min: 0
+        example: 150.5
+      
+      state:
+        type: "enum"
+        description: "Current operational state of the device"
+        required: true
+        values: ["on", "off", "standby"]
+        example: "on"
+      
+      lastActive:
+        type: "timestamp"
+        description: "ISO 8601 timestamp of last activity"
+        required: true
+        example: "2025-11-20T14:30:00Z"
+      
+      idle_threshold:
+        type: "number"
+        description: "Power threshold in watts below which device is considered idle"
+        required: true
+        min: 0
+        example: 5.0
+
+  # Anomaly Model - Represents detected energy anomalies
+  anomaly:
+    description: "Detected energy consumption anomaly"
+    fields:
+      id:
+        type: "string"
+        description: "Unique identifier for the anomaly"
+        required: true
+        example: "anom_001"
+      
+      deviceId:
+        type: "string"
+        description: "Reference to the device that triggered the anomaly"
+        required: true
+        foreign_key: "device.id"
+        example: "dev_002"
+      
+      type:
+        type: "enum"
+        description: "Type of anomaly detected"
+        required: true
+        values: ["phantom_load", "spike"]
+        example: "phantom_load"
+      
+      severity:
+        type: "enum"
+        description: "Severity level of the anomaly"
+        required: true
+        values: ["low", "medium", "high", "critical"]
+        example: "medium"
+      
+      timestamp:
+        type: "timestamp"
+        description: "ISO 8601 timestamp when anomaly was detected"
+        required: true
+        example: "2025-11-20T02:15:00Z"
+      
+      details:
+        type: "object"
+        description: "Additional context about the anomaly"
+        required: false
+        properties:
+          powerDelta:
+            type: "number"
+            description: "Change in power consumption (watts)"
+          duration:
+            type: "number"
+            description: "Duration of anomaly in seconds"
+          estimatedCost:
+            type: "number"
+            description: "Estimated cost impact in dollars"
+
+# UI Flow Definitions
+ui_flows:
+  home_map_view:
+    description: "Main dashboard showing all rooms and devices in a spatial layout"
+    route: "/"
+    components:
+      - name: "RoomMap"
+        description: "Interactive floor plan showing device locations"
+        features:
+          - "Visual representation of home layout"
+          - "Device icons positioned by room"
+          - "Color-coded power states (green=on, gray=off, yellow=standby)"
+          - "Hover tooltips showing current power consumption"
+          - "Click to navigate to device detail"
+      
+      - name: "PowerSummary"
+        description: "Total power consumption metrics"
+        features:
+          - "Total current power draw (watts)"
+          - "Estimated daily cost"
+          - "Active device count"
+          - "Anomaly alert badge"
+      
+      - name: "AnomalyBanner"
+        description: "Alert banner for active anomalies"
+        features:
+          - "Shows count of unresolved anomalies"
+          - "Severity indicator (color-coded)"
+          - "Click to open anomaly panel"
+    
+    interactions:
+      - "Click device icon → Navigate to device detail view"
+      - "Click anomaly banner → Open anomaly panel"
+      - "Toggle night mode → Switch theme"
+
+  device_detail_view:
+    description: "Detailed view of a single device's energy consumption"
+    route: "/device/:deviceId"
+    components:
+      - name: "DeviceHeader"
+        description: "Device identification and current state"
+        features:
+          - "Device name and room location"
+          - "Current power consumption (large display)"
+          - "State indicator (on/off/standby)"
+          - "Last active timestamp"
+      
+      - name: "PowerChart"
+        description: "Historical power consumption graph"
+        features:
+          - "24-hour power consumption timeline"
+          - "Anomaly markers on timeline"
+          - "Zoom and pan controls"
+          - "Hover for exact values"
+      
+      - name: "DeviceStats"
+        description: "Statistical information"
+        features:
+          - "Average power consumption"
+          - "Peak power usage"
+          - "Total energy consumed (kWh)"
+          - "Estimated cost"
+      
+      - name: "AnomalyHistory"
+        description: "List of anomalies for this device"
+        features:
+          - "Chronological list of anomalies"
+          - "Type and severity badges"
+          - "Timestamp and details"
+    
+    interactions:
+      - "Back button → Return to home map view"
+      - "Click anomaly in history → Show anomaly details"
+
+  anomaly_panel:
+    description: "Sliding panel showing all detected anomalies"
+    type: "overlay"
+    components:
+      - name: "AnomalyList"
+        description: "Scrollable list of all anomalies"
+        features:
+          - "Grouped by severity"
+          - "Device name and room"
+          - "Anomaly type icon"
+          - "Timestamp (relative and absolute)"
+          - "Dismiss/acknowledge action"
+      
+      - name: "AnomalyFilter"
+        description: "Filter controls"
+        features:
+          - "Filter by severity"
+          - "Filter by type"
+          - "Filter by device"
+          - "Date range selector"
+      
+      - name: "AnomalyDetail"
+        description: "Expanded view of selected anomaly"
+        features:
+          - "Full anomaly information"
+          - "Suggested actions"
+          - "Link to device detail"
+    
+    interactions:
+      - "Click anomaly → Expand detail view"
+      - "Click device link → Navigate to device detail"
+      - "Dismiss anomaly → Mark as acknowledged"
+      - "Close panel → Return to previous view"
+
+  night_mode_toggle:
+    description: "Theme switcher for day/night modes"
+    type: "global_control"
+    location: "header"
+    features:
+      - "Toggle button (moon/sun icon)"
+      - "Smooth theme transition"
+      - "Persists preference to localStorage"
+      - "Haunted theme variations (light/dark)"
+    
+    themes:
+      light:
+        primary: "#8B4513"  # Saddle brown
+        secondary: "#FF8C00"  # Dark orange
+        background: "#FFF8DC"  # Cornsilk
+        text: "#2C1810"  # Dark brown
+        accent: "#DC143C"  # Crimson
+      
+      dark:
+        primary: "#4A0E4E"  # Dark purple
+        secondary: "#8B008B"  # Dark magenta
+        background: "#1A0F1A"  # Very dark purple
+        text: "#E0D0E0"  # Light lavender
+        accent: "#FF4500"  # Orange red
+
+# Sample Data
+sample_data:
+  devices:
+    - id: "dev_001"
+      name: "Haunted Fridge"
+      room: "Kitchen"
+      powerW: 145.2
+      state: "on"
+      lastActive: "2025-11-20T14:30:00Z"
+      idle_threshold: 10.0
+      metadata:
+        brand: "SpookyCool"
+        model: "GhostFreeze 3000"
+        installDate: "2024-01-15"
+    
+    - id: "dev_002"
+      name: "Phantom TV"
+      room: "Living Room"
+      powerW: 2.5
+      state: "standby"
+      lastActive: "2025-11-20T01:45:00Z"
+      idle_threshold: 5.0
+      metadata:
+        brand: "Spectral Vision"
+        model: "Poltergeist 55"
+        installDate: "2024-03-20"
+    
+    - id: "dev_003"
+      name: "Cursed AC"
+      room: "Bedroom"
+      powerW: 1850.0
+      state: "on"
+      lastActive: "2025-11-20T14:32:00Z"
+      idle_threshold: 15.0
+      metadata:
+        brand: "ChillSpirit"
+        model: "IceWraith 9000"
+        installDate: "2024-06-01"
+    
+    - id: "dev_004"
+      name: "Possessed Washer"
+      room: "Laundry Room"
+      powerW: 0.0
+      state: "off"
+      lastActive: "2025-11-19T18:20:00Z"
+      idle_threshold: 8.0
+      metadata:
+        brand: "SpinSpecter"
+        model: "Banshee Wash Pro"
+        installDate: "2023-11-10"
+    
+    - id: "dev_005"
+      name: "Eerie Lamp"
+      room: "Study"
+      powerW: 12.0
+      state: "on"
+      lastActive: "2025-11-20T14:30:00Z"
+      idle_threshold: 2.0
+      metadata:
+        brand: "GlowGhost"
+        model: "Wisp Light LED"
+        installDate: "2024-08-05"
+  
+  anomalies:
+    - id: "anom_001"
+      deviceId: "dev_002"
+      type: "phantom_load"
+      severity: "medium"
+      timestamp: "2025-11-20T02:15:00Z"
+      details:
+        powerDelta: 2.5
+        duration: 43200
+        estimatedCost: 0.15
+        description: "TV consuming power in standby mode for 12 hours"
+    
+    - id: "anom_002"
+      deviceId: "dev_003"
+      type: "spike"
+      severity: "high"
+      timestamp: "2025-11-20T13:00:00Z"
+      details:
+        powerDelta: 450.0
+        duration: 300
+        estimatedCost: 0.08
+        description: "AC power consumption spiked 450W above normal"
+    
+    - id: "anom_003"
+      deviceId: "dev_001"
+      type: "phantom_load"
+      severity: "low"
+      timestamp: "2025-11-20T03:30:00Z"
+      details:
+        powerDelta: 5.0
+        duration: 7200
+        estimatedCost: 0.05
+        description: "Fridge defrost cycle running longer than expected"
+    
+    - id: "anom_004"
+      deviceId: "dev_005"
+      type: "spike"
+      severity: "low"
+      timestamp: "2025-11-20T08:15:00Z"
+      details:
+        powerDelta: 3.0
+        duration: 60
+        estimatedCost: 0.01
+        description: "Brief power surge detected in lamp circuit"
+
+# API Endpoints (for reference)
+api:
+  base_url: "/api/v1"
+  
+  endpoints:
+    devices:
+      list:
+        method: "GET"
+        path: "/devices"
+        description: "Get all devices"
+        response: "Array of device objects"
+      
+      get:
+        method: "GET"
+        path: "/devices/:id"
+        description: "Get single device by ID"
+        response: "Device object"
+      
+      update_state:
+        method: "PATCH"
+        path: "/devices/:id/state"
+        description: "Update device state"
+        body:
+          state: "enum[on|off|standby]"
+    
+    anomalies:
+      list:
+        method: "GET"
+        path: "/anomalies"
+        description: "Get all anomalies"
+        query_params:
+          - "severity: filter by severity"
+          - "type: filter by type"
+          - "deviceId: filter by device"
+          - "startDate: filter by date range"
+          - "endDate: filter by date range"
+        response: "Array of anomaly objects"
+      
+      get:
+        method: "GET"
+        path: "/anomalies/:id"
+        description: "Get single anomaly by ID"
+        response: "Anomaly object"
+      
+      acknowledge:
+        method: "POST"
+        path: "/anomalies/:id/acknowledge"
+        description: "Mark anomaly as acknowledged"
+        response: "Updated anomaly object"
+    
+    stats:
+      summary:
+        method: "GET"
+        path: "/stats/summary"
+        description: "Get overall power consumption summary"
+        response:
+          totalPowerW: "number"
+          activeDevices: "number"
+          dailyCostEstimate: "number"
+          anomalyCount: "number"
+      
+      device_history:
+        method: "GET"
+        path: "/stats/device/:id/history"
+        description: "Get historical power data for device"
+        query_params:
+          - "period: 24h|7d|30d"
+          - "resolution: 1m|5m|1h"
+        response: "Array of timestamp/power pairs"
+
+# Technical Requirements
+technical:
+  frontend:
+    framework: "React or Vue.js"
+    state_management: "Redux or Vuex"
+    charting: "Chart.js or D3.js"
+    styling: "CSS-in-JS or Tailwind CSS"
+  
+  backend:
+    runtime: "Node.js"
+    framework: "Express or Fastify"
+    database: "PostgreSQL or MongoDB"
+    real_time: "WebSocket or Server-Sent Events"
+  
+  features:
+    - "Real-time power consumption updates"
+    - "Anomaly detection algorithm"
+    - "Historical data storage and retrieval"
+    - "Responsive design (mobile/tablet/desktop)"
+    - "Dark/light theme support"
+    - "Data export (CSV/JSON)"
+    - "Notification system for critical anomalies"
+
+# Business Rules
+business_rules:
+  anomaly_detection:
+    phantom_load:
+      description: "Device consuming power in standby/off state above threshold"
+      trigger: "powerW > idle_threshold AND state IN ['standby', 'off']"
+      severity_rules:
+        low: "powerW < idle_threshold * 2"
+        medium: "powerW >= idle_threshold * 2 AND powerW < idle_threshold * 5"
+        high: "powerW >= idle_threshold * 5"
+    
+    spike:
+      description: "Sudden increase in power consumption"
+      trigger: "powerW > baseline * 1.3"
+      severity_rules:
+        low: "powerW < baseline * 1.5"
+        medium: "powerW >= baseline * 1.5 AND powerW < baseline * 2.0"
+        high: "powerW >= baseline * 2.0"
+        critical: "powerW >= baseline * 3.0"
+  
+  cost_calculation:
+    electricity_rate: 0.12  # dollars per kWh
+    formula: "(powerW / 1000) * hours * rate"
+  
+  data_retention:
+    raw_data: "30 days"
+    aggregated_hourly: "1 year"
+    aggregated_daily: "5 years"
+    anomalies: "indefinite"
+
+# Testing Scenarios
+test_scenarios:
+  - name: "Phantom Load Detection"
+    description: "Verify system detects devices consuming power in standby"
+    steps:
+      - "Set device state to 'standby'"
+      - "Set powerW above idle_threshold"
+      - "Wait for anomaly detection cycle"
+      - "Verify phantom_load anomaly created"
+  
+  - name: "Power Spike Detection"
+    description: "Verify system detects sudden power increases"
+    steps:
+      - "Establish baseline power consumption"
+      - "Increase powerW by 50%"
+      - "Wait for anomaly detection cycle"
+      - "Verify spike anomaly created with correct severity"
+  
+  - name: "Night Mode Toggle"
+    description: "Verify theme switching works correctly"
+    steps:
+      - "Click night mode toggle"
+      - "Verify theme changes to dark"
+      - "Verify preference saved to localStorage"
+      - "Reload page"
+      - "Verify dark theme persists"
+  
+  - name: "Device Detail Navigation"
+    description: "Verify navigation between views"
+    steps:
+      - "From home map, click device icon"
+      - "Verify device detail view loads"
+      - "Verify correct device data displayed"
+      - "Click back button"
+      - "Verify return to home map view"

@@ -1,0 +1,236 @@
+/* Demo Home Setup Styles - Cyber-Goth Theme */
+
+.demo-home-setup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.demo-home-setup-modal {
+  background: linear-gradient(135deg, #0A0A0F 0%, #1A1A2E 100%);
+  border: 2px solid #00FF9C;
+  border-radius: 16px;
+  box-shadow: 
+    0 0 40px rgba(0, 255, 156, 0.4),
+    0 20px 40px rgba(0, 0, 0, 0.7);
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.demo-home-header {
+  padding: 32px 32px 24px;
+  text-align: center;
+  border-bottom: 1px solid rgba(0, 255, 156, 0.2);
+}
+
+.demo-home-header h2 {
+  margin: 0 0 12px 0;
+  font-size: 28px;
+  color: #00FF9C;
+  text-shadow: 0 0 20px rgba(0, 255, 156, 0.6);
+  animation: flicker 3s infinite;
+}
+
+.demo-home-header p {
+  margin: 0;
+  font-size: 16px;
+  color: #ccc;
+}
+
+.demo-home-content {
+  padding: 32px;
+}
+
+.demo-home-features {
+  margin-bottom: 24px;
+}
+
+.demo-home-features h3 {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  color: #4CC9F0;
+  text-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
+}
+
+.demo-home-features ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+}
+
+.demo-home-features li {
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  background: rgba(0, 255, 156, 0.05);
+  border-left: 3px solid #00FF9C;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #E0E0E0;
+  transition: all 0.2s;
+}
+
+.demo-home-features li:hover {
+  background: rgba(0, 255, 156, 0.1);
+  transform: translateX(4px);
+  box-shadow: 0 0 15px rgba(0, 255, 156, 0.2);
+}
+
+.demo-home-features strong {
+  color: #00FF9C;
+}
+
+.demo-note {
+  padding: 12px 16px;
+  background: rgba(76, 201, 240, 0.1);
+  border: 1px solid rgba(76, 201, 240, 0.3);
+  border-radius: 8px;
+  font-size: 14px;
+  color: #4CC9F0;
+  text-align: center;
+  margin: 0;
+}
+
+.demo-error {
+  padding: 12px 16px;
+  background: rgba(215, 38, 61, 0.1);
+  border: 1px solid rgba(215, 38, 61, 0.3);
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.demo-error p {
+  margin: 0;
+  color: #D7263D;
+  font-size: 14px;
+}
+
+.demo-home-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.demo-create-button,
+.demo-skip-button {
+  flex: 1;
+  padding: 14px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: none;
+}
+
+.demo-create-button {
+  background: linear-gradient(135deg, #00FF9C 0%, #00CC7D 100%);
+  color: #0A0A0F;
+  box-shadow: 0 0 20px rgba(0, 255, 156, 0.4);
+}
+
+.demo-create-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(0, 255, 156, 0.6);
+}
+
+.demo-create-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.demo-skip-button {
+  background: rgba(255, 255, 255, 0.05);
+  color: #888;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.demo-skip-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ccc;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes flicker {
+  0%, 100% {
+    opacity: 1;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  20% {
+    opacity: 1;
+  }
+  30% {
+    opacity: 0.9;
+  }
+  40% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+  60% {
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .demo-home-setup-modal {
+    width: 95%;
+  }
+
+  .demo-home-header {
+    padding: 24px 20px 16px;
+  }
+
+  .demo-home-header h2 {
+    font-size: 24px;
+  }
+
+  .demo-home-content {
+    padding: 20px;
+  }
+
+  .demo-home-actions {
+    flex-direction: column;
+  }
+
+  .demo-create-button,
+  .demo-skip-button {
+    width: 100%;
+  }
+}
