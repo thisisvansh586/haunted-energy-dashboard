@@ -79,7 +79,7 @@ function DeviceManagementModal({ device, homeId, onClose, onSave, onDelete }) {
     setError(null)
 
     try {
-      const token = getToken()
+      const token = await getToken()
       const url = isEditMode
         ? `${import.meta.env.VITE_API_URL || 'http://localhost:3002'}/api/devices/${device.id}`
         : `${import.meta.env.VITE_API_URL || 'http://localhost:3002'}/api/devices`
@@ -123,7 +123,7 @@ function DeviceManagementModal({ device, homeId, onClose, onSave, onDelete }) {
     setError(null)
 
     try {
-      const token = getToken()
+      const token = await getToken()
       const response = await fetch(
         `${import.meta.env.VITE_API_URL || 'http://localhost:3002'}/api/devices/${device.id}`,
         {

@@ -108,10 +108,19 @@ export const useAuthStore = create(
         }
       },
 
-      // Get auth token for API calls
-      getToken: () => {
-        const session = get().session
-        return session?.access_token || null
+      // Get auth token for API calls (with refresh)
+      getToken: async () => {
+        if (!supabase) return null
+        
+        // Get fresh session
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (session) {
+          set({ session, user: session.user })
+          return session.access_token
+        }
+        
+        return null
       },
 
       // Check if user is authenticated
