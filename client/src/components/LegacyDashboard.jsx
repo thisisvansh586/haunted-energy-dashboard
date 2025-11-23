@@ -35,11 +35,13 @@ function LegacyDashboard() {
       setAnomalies(anomaliesData)
       
       // Update usage history
-      const totalPower = devicesData.reduce((sum, d) => sum + d.powerW, 0)
-      setUsageHistory(prev => {
-        const newHistory = [...prev, totalPower]
-        return newHistory.slice(-60)
-      })
+      if (Array.isArray(devicesData)) {
+        const totalPower = devicesData.reduce((sum, d) => sum + (d.powerW || 0), 0)
+        setUsageHistory(prev => {
+          const newHistory = [...prev, totalPower]
+          return newHistory.slice(-60)
+        })
+      }
     } catch (error) {
       console.error('Failed to fetch data:', error)
     }
@@ -55,7 +57,7 @@ function LegacyDashboard() {
     return () => clearInterval(interval)
   }, [])
 
-  const totalPower = devices.reduce((sum, d) => sum + d.powerW, 0)
+  const totalPower = Array.isArray(devices) ? devices.reduce((sum, d) => sum + (d.powerW || 0), 0) : 0
   const isHighUsage = totalPower > 500
 
   return (
