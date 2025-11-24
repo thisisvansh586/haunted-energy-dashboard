@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react'
-import { useAuthStore } from '../store/authStore'
 import Navigation from '../components/Navigation'
 import './NotificationsPage.css'
 
 function NotificationsPage() {
-  const { user, signOut, getToken } = useAuthStore()
   const [notifications, setNotifications] = useState([])
   const [filter, setFilter] = useState('all') // 'all', 'unread', 'read'
   const [loading, setLoading] = useState(false)
@@ -15,14 +13,11 @@ function NotificationsPage() {
     setError(null)
 
     try {
-      const token = await getToken()
       const url = filter === 'all' 
         ? '/api/notifications'
         : `/api/notifications?read=${filter === 'read'}`
       
-      const res = await fetch(url, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
+      const res = await fetch(url)
 
       if (!res.ok) {
         throw new Error('Failed to fetch notifications')
@@ -40,10 +35,8 @@ function NotificationsPage() {
 
   const markAsRead = async (id) => {
     try {
-      const token = await getToken()
       await fetch(`/api/notifications/${id}/read`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        method: 'POST'
       })
       
       // Update local state
@@ -57,14 +50,12 @@ function NotificationsPage() {
 
   const markAllAsRead = async () => {
     try {
-      const token = await getToken()
       const unreadNotifications = notifications.filter(n => !n.read)
       
       await Promise.all(
         unreadNotifications.map(n =>
           fetch(`/api/notifications/${n.id}/read`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` }
+            method: 'POST'
           })
         )
       )
@@ -77,10 +68,8 @@ function NotificationsPage() {
 
   const deleteNotification = async (id) => {
     try {
-      const token = await getToken()
       await fetch(`/api/notifications/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+        method: 'DELETE'
       })
       
       // Update local state
@@ -92,14 +81,12 @@ function NotificationsPage() {
 
   const deleteAllRead = async () => {
     try {
-      const token = await getToken()
       const readNotifications = notifications.filter(n => n.read)
       
       await Promise.all(
         readNotifications.map(n =>
           fetch(`/api/notifications/${n.id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
+            method: 'DELETE'
           })
         )
       )
@@ -152,7 +139,7 @@ function NotificationsPage() {
 
   return (
     <div className="app">
-      <Navigation user={user} onLogout={signOut} />
+      <Navigation />
       <div className="notifications-page">
         <div className="notifications-header">
           <h1>🔔 Notifications</h1>

@@ -1,10 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useAuthStore } from '../store/authStore'
 import Navigation from '../components/Navigation'
 import './HistoryPage.css'
 
 function HistoryPage() {
-  const { user, signOut, getToken } = useAuthStore()
   const [telemetry, setTelemetry] = useState([])
   const [devices, setDevices] = useState([])
   const [selectedHomeId, setSelectedHomeId] = useState(null)
@@ -32,10 +30,7 @@ function HistoryPage() {
 
     const fetchDevices = async () => {
       try {
-        const token = await getToken()
-        const res = await fetch(`/api/devices?homeId=${selectedHomeId}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
+        const res = await fetch(`/api/devices?homeId=${selectedHomeId}`)
         const data = await res.json()
         setDevices(data.devices || [])
       } catch (err) {
@@ -44,7 +39,7 @@ function HistoryPage() {
     }
 
     fetchDevices()
-  }, [selectedHomeId, getToken])
+  }, [selectedHomeId])
 
   // Fetch telemetry data
   const fetchTelemetry = async () => {
@@ -57,15 +52,11 @@ function HistoryPage() {
     setError(null)
 
     try {
-      const token = await getToken()
       const startISO = new Date(startDate).toISOString()
       const endISO = new Date(endDate + 'T23:59:59').toISOString()
       
       const res = await fetch(
-        `/api/telemetry?homeId=${selectedHomeId}&since=${startISO}&limit=10000`,
-        {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }
+        `/api/telemetry?homeId=${selectedHomeId}&since=${startISO}&limit=10000`
       )
       
       if (!res.ok) {
@@ -174,7 +165,7 @@ function HistoryPage() {
   if (!selectedHomeId) {
     return (
       <div className="app">
-        <Navigation user={user} onLogout={signOut} />
+        <Navigation />
         <div className="history-page">
           <h1>📊 Energy History</h1>
           <div className="empty-state">
@@ -187,7 +178,7 @@ function HistoryPage() {
 
   return (
     <div className="app">
-      <Navigation user={user} onLogout={signOut} />
+      <Navigation />
       <div className="history-page">
         <h1>📊 Energy History</h1>
         

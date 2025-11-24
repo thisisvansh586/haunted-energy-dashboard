@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react'
-import { useAuthStore } from '../store/authStore'
 import Navigation from '../components/Navigation'
 import './ReportsPage.css'
 
 function ReportsPage() {
-  const { user, signOut, getToken } = useAuthStore()
   const [period, setPeriod] = useState('weekly')
   const [report, setReport] = useState(null)
   const [selectedHomeId, setSelectedHomeId] = useState(null)
@@ -29,10 +27,7 @@ function ReportsPage() {
     setError(null)
 
     try {
-      const token = await getToken()
-      const res = await fetch(`/api/reports?homeId=${selectedHomeId}&period=${period}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
+      const res = await fetch(`/api/reports?homeId=${selectedHomeId}&period=${period}`)
 
       if (!res.ok) {
         throw new Error('Failed to fetch report')
@@ -57,7 +52,7 @@ function ReportsPage() {
   if (!selectedHomeId) {
     return (
       <div className="app">
-        <Navigation user={user} onLogout={signOut} />
+        <Navigation />
         <div className="reports-page">
           <h1>📈 Energy Reports</h1>
           <div className="empty-state">
@@ -70,7 +65,7 @@ function ReportsPage() {
 
   return (
     <div className="app">
-      <Navigation user={user} onLogout={signOut} />
+      <Navigation />
       <div className="reports-page">
         <h1>📈 Energy Reports</h1>
         

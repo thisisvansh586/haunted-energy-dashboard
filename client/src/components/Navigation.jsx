@@ -2,7 +2,11 @@ import { Link, useLocation } from 'react-router-dom'
 import NotificationBell from './NotificationBell'
 import './Navigation.css'
 
-function Navigation({ user, onLogout, theme, onToggleTheme, notifications = [], onMarkNotificationAsRead }) {
+/**
+ * Navigation Component
+ * No authentication - simplified navigation bar
+ */
+function Navigation({ theme, onToggleTheme, notifications = [], onMarkNotificationAsRead }) {
   const location = useLocation()
 
   return (
@@ -21,11 +25,11 @@ function Navigation({ user, onLogout, theme, onToggleTheme, notifications = [], 
           notifications={notifications} 
           onMarkAsRead={onMarkNotificationAsRead}
         />
-        <span className="user-email">{user?.email}</span>
-        <button className="theme-toggle" onClick={onToggleTheme}>
-          {theme === 'light' ? '🌙' : '☀️'}
-        </button>
-        <button className="logout-button" onClick={onLogout}>Logout</button>
+        {theme && onToggleTheme && (
+          <button className="theme-toggle" onClick={onToggleTheme}>
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
+        )}
       </div>
     </nav>
   )
