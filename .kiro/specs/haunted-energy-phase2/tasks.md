@@ -579,7 +579,10 @@
   - Click to navigate to anomaly
   - _Requirements: 6.3, 6.4_
 
-- [ ] 21.3 Create NotificationsCenter.jsx page
+- [x] 21.3 Create NotificationsCenter.jsx page
+
+
+
   - Display all notifications
   - Filter by read/unread
   - Mark as read on click
@@ -590,21 +593,26 @@
   - **Property 30: Notification count accuracy**
   - **Validates: Requirements 10.5**
 
-- [ ] 22. Frontend history page
+- [-] 22. Frontend history page
+
   - Create history page with date range selector
   - Display historical chart
   - Add CSV export
   - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
+
+
 
 - [ ] 22.1 Create HistoryPage.jsx component
   - Add date range picker
   - Fetch telemetry for date range
   - Display line chart
   - Add export button
+
   - _Requirements: 12.1, 12.2, 12.3_
 
 - [ ] 22.2 Implement CSV export functionality
   - Convert telemetry data to CSV format
+
   - Trigger download
   - _Requirements: 12.4_
 
@@ -616,11 +624,14 @@
 
 - [ ] 22.4 Write property tests for history page
   - **Property 32: Chart data accuracy**
+
   - **Property 33: CSV export completeness**
   - **Property 34: Large range aggregation**
   - **Validates: Requirements 12.3, 12.4, 12.5**
 
-- [ ] 23. Frontend reports page
+- [x] 23. Frontend reports page
+
+
   - Create reports page with weekly/monthly tabs
   - Display usage statistics
   - Show top devices chart

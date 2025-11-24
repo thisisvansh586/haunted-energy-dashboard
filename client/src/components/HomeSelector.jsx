@@ -27,7 +27,7 @@ function HomeSelector({ onHomeChange }) {
   const fetchHomes = async () => {
     try {
       setLoading(true)
-      const token = getToken()
+      const token = await getToken()
       
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3002'}/api/homes`, {
         headers: {
@@ -80,7 +80,7 @@ function HomeSelector({ onHomeChange }) {
     if (!name) return
 
     try {
-      const token = getToken()
+      const token = await getToken()
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3002'}/api/homes`, {
         method: 'POST',
         headers: {

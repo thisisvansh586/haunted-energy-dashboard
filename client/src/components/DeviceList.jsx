@@ -19,7 +19,7 @@ function DeviceList({ devices, homeId, onDeviceUpdate }) {
   const handleToggleState = async (device) => {
     setControllingDevice(device.id)
     try {
-      const token = getToken()
+      const token = await getToken()
       const states = ['off', 'standby', 'on']
       const currentIndex = states.indexOf(device.state)
       const nextState = states[(currentIndex + 1) % states.length]
