@@ -6,9 +6,19 @@ import { isSupabaseConfigured } from '../supabaseClient'
  * Protected Route Component
  * Redirects to login if user is not authenticated
  * Allows demo mode if Supabase is not configured
+ * 
+ * DEV MODE: Set VITE_SKIP_AUTH=true in .env to bypass authentication
  */
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuthStore()
+
+  // DEV MODE: Skip authentication if VITE_SKIP_AUTH is true
+  const skipAuth = import.meta.env.VITE_SKIP_AUTH === 'true'
+  
+  if (skipAuth) {
+    console.log('🚀 DEV MODE: Authentication bypassed')
+    return children
+  }
 
   // Show loading state
   if (loading) {

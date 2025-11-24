@@ -80,12 +80,22 @@ function DeviceManagementModal({ device, homeId, onClose, onSave, onDelete }) {
 
     try {
       const token = await getToken()
+      
+      if (!token) {
+        throw new Error('Not authenticated. Please log in again.')
+      }
+
+      console.log('🔑 Token retrieved, making API call...')
+      
       const url = isEditMode
         ? `${import.meta.env.VITE_API_URL || 'http://localhost:3002'}/api/devices/${device.id}`
         : `${import.meta.env.VITE_API_URL || 'http://localhost:3002'}/api/devices`
 
       const method = isEditMode ? 'PUT' : 'POST'
       const body = isEditMode ? formData : { ...formData, home_id: homeId }
+
+      console.log('📤 Sending request:', method, url)
+      console.log('📦 Body:', body)
 
       const response = await fetch(url, {
         method,
@@ -96,18 +106,23 @@ function DeviceManagementModal({ device, homeId, onClose, onSave, onDelete }) {
         body: JSON.stringify(body)
       })
 
+      console.log('📥 Response status:', response.status)
+
       if (!response.ok) {
         const data = await response.json()
-        throw new Error(data.error || 'Failed to save device')
+        console.error('❌ API error:', data)
+        throw new Error(data.error || data.details || 'Failed to save device')
       }
 
       const data = await response.json()
+      console.log('✅ Device saved:', data)
+      
       if (onSave) {
         onSave(data.device)
       }
       onClose()
     } catch (err) {
-      console.error('Error saving device:', err)
+      console.error('❌ Error saving device:', err)
       setError(err.message)
     } finally {
       setLoading(false)
