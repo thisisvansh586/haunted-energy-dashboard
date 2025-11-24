@@ -1,42 +1,43 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuthStore } from '../store/authStore'
-import { useRealtime } from '../hooks/useRealtime'
 import Navigation from '../components/Navigation'
-import HomeSelector from '../components/HomeSelector'
-import HouseMap from '../components/HouseMap'
-import DeviceList from '../components/DeviceList'
-import UsageGauge from '../components/UsageGauge'
-import AnomalyPanel from '../components/AnomalyPanel'
-import UsageChart from '../components/UsageChart'
-import DeviceChart from '../components/DeviceChart'
-import NotificationToast from '../components/NotificationToast'
-import { supabase } from '../supabaseClient'
+import './DashboardPage.css'
 
-/**
- * Dashboard Page - Main application view
- * Integrates real-time subscriptions, home selection, and notifications
- * Feature: haunted-energy-phase2
- * Property 16: Telemetry UI update
- * Property 18: Notification triggers toast
- */
+// Default demo devices
+const DEFAULT_DEVICES = [
+  { id: '1', name: 'Living Room AC', icon: '❄️', room: 'Living Room', current_power: 1850, state: 'on', base_power: 1850, type: 'hvac' },
+  { id: '2', name: 'Kitchen Fridge', icon: '🧊', room: 'Kitchen', current_power: 145, state: 'on', base_power: 145, type: 'appliance' },
+  { id: '3', name: 'Bedroom TV', icon: '📺', room: 'Bedroom', current_power: 4, state: 'standby', base_power: 120, type: 'electronics' },
+  { id: '4', name: 'Hall Lights', icon: '💡', room: 'Hallway', current_power: 45, state: 'on', base_power: 45, type: 'lighting' },
+  { id: '5', name: 'Office Heater', icon: '🔥', room: 'Office', current_power: 0, state: 'off', base_power: 1500, type: 'hvac' },
+  { id: '6', name: 'Garage Lights', icon: '💡', room: 'Garage', current_power: 0, state: 'off', base_power: 60, type: 'lighting' }
+]
+
+// Default notifications
+const DEFAULT_NOTIFICATIONS = [
+  { id: '1', title: 'High Power Detected', message: 'Living Room AC consuming 1850W', level: 'warning', time: '5m ago' },
+  { id: '2', title: 'Standby Mode', message: 'Bedroom TV dropped to standby mode', level: 'info', time: '12m ago' },
+  { id: '3', title: 'Device Disconnected', message: 'Office Heater went offline', level: 'error', time: '1h ago' }
+]
+
 function DashboardPage() {
   const navigate = useNavigate()
-  const { user, signOut, getToken } = useAuthStore()
+  const [devices, setDevices] = useState(DEFAULT_DEVICES)
+  const [notifications, setNotifications] = useState(DEFAULT_NOTIFICATIONS)
   const [theme, setTheme] = useState('dark')
-  const [devices, setDevices] = useState([])
-  const [anomalies, setAnomalies] = useState([])
-  const [notifications, setNotifications] = useState([])
-  const [usageHistory, setUsageHistory] = useState([])
-  const [currentHome, setCurrentHome] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [toasts, setToasts] = useState([])
 
-  // Real-time subscriptions
-  const { telemetryUpdates, anomalyUpdates, notificationUpdates, isConnected } = useRealtime(
-    currentHome?.id,
-    user?.id
-  )
+  useEffect(() => {
+    document.body.className = theme
+    // Simulate power fluctuations
+    const interval = setInterval(() => {
+      setDevices(prev => prev.map(d => ({
+        ...d,
+        current_power: d.state === 'on' ? d.base_power * (0.9 + Math.random() * 0.2) :
+                       d.state === 'standby' ? Math.random() * 10 : 0
+      })))
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [])
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light'
@@ -44,204 +45,126 @@ function DashboardPage() {
     document.body.className = newTheme
   }
 
-  const handleLogout = async () => {
-    await signOut()
-    navigate('/auth')
+  const toggleDevice = (id) => {
+    setDevices(prev => prev.map(d => {
+      if (d.id === id) {
+        const states = ['off', 'standby', 'on']
+        const currentIndex = states.indexOf(d.state)
+        const nextState = states[(currentIndex + 1) % states.length]
+        return { ...d, state: nextState }
+      }
+      return d
+    }))
   }
 
-  const handleHomeChange = (home) => {
-    setCurrentHome(home)
-    if (home) {
-      fetchDevices(home.id)
-      fetchAnomalies(home.id)
-      fetchNotifications()
-    }
-  }
-
-  const fetchDevices = async (homeId) => {
-    if (!homeId) return
-    try {
-      const token = getToken()
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3002'}/api/devices?homeId=${homeId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-      const data = await res.json()
-      setDevices(data.devices || [])
-    } catch (error) {
-      console.error('Error fetching devices:', error)
-    }
-  }
-
-  const fetchAnomalies = async (homeId) => {
-    if (!homeId) return
-    try {
-      const token = getToken()
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3002'}/api/anomalies?homeId=${homeId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-      const data = await res.json()
-      setAnomalies(data.anomalies || [])
-    } catch (error) {
-      console.error('Error fetching anomalies:', error)
-    }
-  }
-
-  const fetchNotifications = async () => {
-    try {
-      const token = getToken()
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3002'}/api/notifications`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-      const data = await res.json()
-      setNotifications(data.notifications || [])
-    } catch (error) {
-      console.error('Error fetching notifications:', error)
-    }
-  }
-
-  const markNotificationAsRead = async (notificationId) => {
-    try {
-      const token = getToken()
-      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3002'}/api/notifications/${notificationId}/read`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-      setNotifications(prev => 
-        prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
-      )
-    } catch (error) {
-      console.error('Error marking notification as read:', error)
-    }
-  }
-
-  // Handle real-time telemetry updates
-  useEffect(() => {
-    if (telemetryUpdates.length > 0) {
-      const latestUpdate = telemetryUpdates[telemetryUpdates.length - 1]
-      setDevices(prev => 
-        prev.map(d => 
-          d.id === latestUpdate.device_id 
-            ? { ...d, current_power: latestUpdate.power_w }
-            : d
-        )
-      )
-    }
-  }, [telemetryUpdates])
-
-  // Handle real-time anomaly updates
-  useEffect(() => {
-    if (anomalyUpdates.length > 0) {
-      const latestAnomaly = anomalyUpdates[anomalyUpdates.length - 1]
-      setAnomalies(prev => [latestAnomaly, ...prev])
-    }
-  }, [anomalyUpdates])
-
-  // Handle real-time notification updates - show toast
-  useEffect(() => {
-    if (notificationUpdates.length > 0) {
-      const latestNotification = notificationUpdates[notificationUpdates.length - 1]
-      setNotifications(prev => [latestNotification, ...prev])
-      
-      // Show toast
-      setToasts(prev => [...prev, { ...latestNotification, id: Date.now() }])
-    }
-  }, [notificationUpdates])
-
-  const removeToast = (toastId) => {
-    setToasts(prev => prev.filter(t => t.id !== toastId))
-  }
-
-  useEffect(() => {
-    document.body.className = theme
-    setLoading(false)
-    fetchNotifications()
-  }, [])
-
-  const totalPower = devices.reduce((sum, d) => sum + (d.current_power || 0), 0)
-
-  if (loading) return <div className="loading">Loading...</div>
+  const totalPower = devices.reduce((sum, d) => sum + d.current_power, 0)
+  const activeDevices = devices.filter(d => d.state === 'on').length
+  const standbyDevices = devices.filter(d => d.state === 'standby').length
+  const ghostPower = devices.filter(d => d.state === 'standby').reduce((sum, d) => sum + d.current_power, 0)
 
   return (
     <div className="app">
-      {theme === 'dark' && <div className="fog-overlay"></div>}
+      <Navigation theme={theme} onToggleTheme={toggleTheme} />
       
-      <Navigation 
-        user={user} 
-        onLogout={handleLogout} 
-        theme={theme} 
-        onToggleTheme={toggleTheme}
-        notifications={notifications}
-        onMarkNotificationAsRead={markNotificationAsRead}
-      />
-      
-      <div className="main-content">
-        <HomeSelector onHomeChange={handleHomeChange} />
-        
-        {isConnected && (
-          <div className="realtime-indicator">
-            <span className="realtime-dot"></span>
-            Live Updates Active
+      <div className="dashboard-container">
+        {/* Power Summary Section */}
+        <div className="power-summary">
+          <div className="summary-card total">
+            <div className="summary-icon">⚡</div>
+            <div className="summary-content">
+              <h3>Total Power</h3>
+              <p className="summary-value">{totalPower.toFixed(1)} W</p>
+              <span className="summary-label">Current Usage</span>
+            </div>
           </div>
-        )}
-        
-        <div className="left-panel">
-          <div className="card house-map">
-            <h2>🏚️ {currentHome?.name || 'House Map'}</h2>
-            <HouseMap devices={devices} />
+          
+          <div className="summary-card active">
+            <div className="summary-icon">🟢</div>
+            <div className="summary-content">
+              <h3>Active Devices</h3>
+              <p className="summary-value">{activeDevices}</p>
+              <span className="summary-label">Currently ON</span>
+            </div>
           </div>
-          <div className="card">
-            <h2>📈 Usage History</h2>
-            <UsageChart usageHistory={usageHistory} />
+          
+          <div className="summary-card standby">
+            <div className="summary-icon">🟡</div>
+            <div className="summary-content">
+              <h3>Standby Devices</h3>
+              <p className="summary-value">{standbyDevices}</p>
+              <span className="summary-label">Low Power Mode</span>
+            </div>
           </div>
-          <div className="card">
-            <h2>📊 Device Power</h2>
-            <DeviceChart devices={devices} />
+          
+          <div className="summary-card ghost">
+            <div className="summary-icon">👻</div>
+            <div className="summary-content">
+              <h3>Ghost Power</h3>
+              <p className="summary-value">{ghostPower.toFixed(1)} W</p>
+              <span className="summary-label">Wasted Energy</span>
+            </div>
           </div>
         </div>
-        <div>
-          <div className="card usage-gauge">
-            <h2>⚡ Total Power</h2>
-            <UsageGauge totalPower={totalPower} deviceCount={devices.length} />
-          </div>
-          <div className="card">
-            <h2>🔌 Devices</h2>
-            <DeviceList 
-              devices={devices} 
-              homeId={currentHome?.id}
-              onDeviceUpdate={(device) => {
-                if (device._deleted) {
-                  setDevices(prev => prev.filter(d => d.id !== device.id))
-                } else {
-                  setDevices(prev => {
-                    const index = prev.findIndex(d => d.id === device.id)
-                    if (index >= 0) {
-                      const updated = [...prev]
-                      updated[index] = device
-                      return updated
-                    }
-                    return [...prev, device]
-                  })
-                }
-              }}
-            />
-          </div>
-          <div className="card anomaly-panel">
-            <h2>⚠️ Anomalies ({anomalies.length})</h2>
-            <AnomalyPanel anomalies={anomalies} devices={devices} />
-          </div>
-        </div>
-      </div>
 
-      {/* Notification Toasts */}
-      <div className="toast-container">
-        {toasts.map(toast => (
-          <NotificationToast
-            key={toast.id}
-            notification={toast}
-            onDismiss={() => removeToast(toast.id)}
-            onClick={() => navigate('/notifications')}
-          />
-        ))}
+        <div className="dashboard-grid">
+          {/* Devices Section */}
+          <div className="devices-section">
+            <h2>🔌 Devices</h2>
+            <div className="devices-grid">
+              {devices.map(device => (
+                <div 
+                  key={device.id} 
+                  className={`device-card ${device.state}`}
+                  onClick={() => navigate(`/device/${device.id}`)}
+                >
+                  <div className="device-header">
+                    <span className="device-icon">{device.icon}</span>
+                    <span className={`device-status ${device.state}`}>
+                      {device.state.toUpperCase()}
+                    </span>
+                  </div>
+                  <h3>{device.name}</h3>
+                  <p className="device-room">{device.room}</p>
+                  <div className="device-power">
+                    <span className="power-value">{device.current_power.toFixed(1)}</span>
+                    <span className="power-unit">W</span>
+                  </div>
+                  <button 
+                    className="toggle-btn"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      toggleDevice(device.id)
+                    }}
+                  >
+                    Toggle
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Notifications Panel */}
+          <div className="notifications-panel">
+            <h2>🔔 Alerts</h2>
+            <div className="notifications-list">
+              {notifications.map(notif => (
+                <div key={notif.id} className={`notification-item ${notif.level}`}>
+                  <div className="notif-icon">
+                    {notif.level === 'warning' ? '⚠️' : notif.level === 'error' ? '❌' : 'ℹ️'}
+                  </div>
+                  <div className="notif-content">
+                    <h4>{notif.title}</h4>
+                    <p>{notif.message}</p>
+                    <span className="notif-time">{notif.time}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button className="view-all-btn" onClick={() => navigate('/notifications')}>
+              View All Notifications
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   )
