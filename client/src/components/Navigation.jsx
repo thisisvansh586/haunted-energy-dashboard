@@ -59,6 +59,24 @@ function Navigation({ theme, onToggleTheme, notifications = [], onMarkNotificati
         <div className="menu-divider"></div>
 
         <div className="menu-section">
+          <div className="menu-section-title">Quick Actions</div>
+          <button 
+            className="menu-item add-device-btn"
+            onClick={() => {
+              // Trigger add device modal
+              const event = new CustomEvent('openAddDeviceModal')
+              window.dispatchEvent(event)
+              closeMenu()
+            }}
+          >
+            <span className="menu-icon">➕</span>
+            <span>Add Device</span>
+          </button>
+        </div>
+
+        <div className="menu-divider"></div>
+
+        <div className="menu-section">
           <div className="menu-section-title">Navigation</div>
           <Link 
             to="/dashboard" 
@@ -107,10 +125,14 @@ function Navigation({ theme, onToggleTheme, notifications = [], onMarkNotificati
               <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
             </button>
           )}
-          <button className="menu-item" onClick={closeMenu}>
+          <Link 
+            to="/settings" 
+            className={`menu-item ${location.pathname === '/settings' ? 'active' : ''}`}
+            onClick={closeMenu}
+          >
             <span className="menu-icon">⚙️</span>
             <span>Settings</span>
-          </button>
+          </Link>
         </div>
       </div>
 

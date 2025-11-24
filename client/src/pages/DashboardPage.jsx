@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navigation from '../components/Navigation'
+import DeviceManagementModal from '../components/DeviceManagementModal'
 import './DashboardPage.css'
 
 // Default demo devices
@@ -25,9 +26,18 @@ function DashboardPage() {
   const [devices, setDevices] = useState(DEFAULT_DEVICES)
   const [notifications, setNotifications] = useState(DEFAULT_NOTIFICATIONS)
   const [theme, setTheme] = useState('dark')
+  const [showAddDeviceModal, setShowAddDeviceModal] = useState(false)
 
   useEffect(() => {
     document.body.className = theme
+    
+    // Listen for add device event from navigation
+    const handleOpenAddDevice = () => {
+      setShowAddDeviceModal(true)
+    }
+    
+    window.addEventListener('openAddDeviceModal', handleOpenAddDevice)
+    
     // Simulate power fluctuations
     const interval = setInterval(() => {
       setDevices(prev => prev.map(d => ({
@@ -36,7 +46,11 @@ function DashboardPage() {
                        d.state === 'standby' ? Math.random() * 10 : 0
       })))
     }, 3000)
-    return () => clearInterval(interval)
+    
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener('openAddDeviceModal', handleOpenAddDevice)
+    }
   }, [])
 
   const toggleTheme = () => {
@@ -55,6 +69,17 @@ function DashboardPage() {
       }
       return d
     }))
+  }
+
+  const handleAddDevice = (newDeviceData) => {
+    const newDevice = {
+      id: String(devices.length + 1),
+      ...newDeviceData,
+      current_power: newDeviceData.state === 'on' ? newDeviceData.base_power : 
+                     newDeviceData.state === 'standby' ? Math.random() * 10 : 0
+    }
+    setDevices(prev => [...prev, newDevice])
+    setShowAddDeviceModal(false)
   }
 
   const totalPower = devices.reduce((sum, d) => sum + d.current_power, 0)
@@ -166,6 +191,14 @@ function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Add Device Modal */}
+      {showAddDeviceModal && (
+        <DeviceManagementModal
+          onClose={() => setShowAddDeviceModal(false)}
+          onSave={handleAddDevice}
+        />
+      )}
     </div>
   )
 }
