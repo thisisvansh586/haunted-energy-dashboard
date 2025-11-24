@@ -14,6 +14,7 @@ export const useAuthStore = create(
       session: null,
       loading: true,
       error: null,
+      authSubscription: null,
 
       // Actions
       setUser: (user) => set({ user }),
