@@ -69,6 +69,9 @@
 
 /* Devices Section */
 .devices-section h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 2rem;
   color: #4CC9F0;
   margin-bottom: 1.5rem;
@@ -201,6 +204,9 @@
 }
 
 .notifications-panel h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 1.5rem;
   color: #4CC9F0;
   margin-bottom: 1rem;
