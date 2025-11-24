@@ -31,19 +31,36 @@ export const useAuthStore = create(
             return
           }
 
-          // Get current session
-          const { data: { session } } = await supabase.auth.getSession()
+          // Get current session from Supabase
+          const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+          
+          if (sessionError) {
+            console.error('Session error:', sessionError)
+          }
           
           if (session) {
+            console.log('✅ Session loaded:', session.user.email)
             set({ session, user: session.user })
+          } else {
+            console.log('ℹ️ No active session')
+            set({ session: null, user: null })
           }
 
-          // Listen for auth changes
-          supabase.auth.onAuthStateChange((_event, session) => {
-            set({ session, user: session?.user || null })
+          // Listen for auth state changes (login, logout, token refresh)
+          const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log('🔄 Auth state changed:', event, session?.user?.email)
+            
+            if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+              set({ session, user: session?.user || null })
+            } else if (event === 'SIGNED_OUT') {
+              set({ session: null, user: null })
+            } else if (event === 'USER_UPDATED') {
+              set({ session, user: session?.user || null })
+            }
           })
 
-          set({ loading: false })
+          // Store subscription for cleanup
+          set({ loading: false, authSubscription: subscription })
         } catch (error) {
           console.error('Auth initialization error:', error)
           set({ error: error.message, loading: false })
@@ -108,19 +125,36 @@ export const useAuthStore = create(
         }
       },
 
-      // Get auth token for API calls (with refresh)
+      // Get auth token for API calls (with automatic refresh)
       getToken: async () => {
-        if (!supabase) return null
-        
-        // Get fresh session
-        const { data: { session } } = await supabase.auth.getSession()
-        
-        if (session) {
-          set({ session, user: session.user })
-          return session.access_token
+        if (!supabase) {
+          console.warn('⚠️ Supabase not configured')
+          return null
         }
         
-        return null
+        try {
+          // Get current session (Supabase automatically refreshes if needed)
+          const { data: { session }, error } = await supabase.auth.getSession()
+          
+          if (error) {
+            console.error('Error getting session:', error)
+            return null
+          }
+          
+          if (session?.access_token) {
+            // Update store with fresh session
+            set({ session, user: session.user })
+            console.log('✅ Token retrieved for:', session.user.email)
+            return session.access_token
+          }
+          
+          console.warn('⚠️ No active session - user needs to log in')
+          set({ session: null, user: null })
+          return null
+        } catch (error) {
+          console.error('Error in getToken:', error)
+          return null
+        }
       },
 
       // Check if user is authenticated
