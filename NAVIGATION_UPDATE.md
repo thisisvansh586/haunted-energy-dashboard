@@ -1,7 +1,7 @@
 # Navigation Menu Update
 
 ## Overview
-Updated the dashboard navbar with a clean, expandable menu system featuring proper spacing and alignment.
+Updated the dashboard navbar with a clean, expandable menu system featuring proper spacing and alignment. Also fixed icon and text alignment across all page headings.
 
 ## Features
 
@@ -94,3 +94,32 @@ The menu slides in from the right side and includes:
 - User profile editing
 - Additional menu sections as needed
 - Keyboard shortcuts for menu toggle
+
+
+## Icon Alignment Fixes
+
+Fixed emoji icon and text alignment across all pages by adding flexbox properties to headings:
+
+### Pages Updated
+- **DashboardPage**: "🔔 Alerts" and device section headings
+- **DeviceDetailsPage**: "⚡ Current Power", "📊 Statistics", "🔔 Device Alerts"
+- **NotificationsPage**: "🔔 Notifications" main heading
+- **ReportsPage**: "📈 Energy Reports", "🏆 Top Energy Consumers", "💡 Insights & Recommendations"
+- **HistoryPage**: "📊 Energy History", chart and table headings
+
+### CSS Changes Applied
+All headings with emoji icons now use:
+```css
+display: flex;
+align-items: center;
+gap: 0.5rem;
+```
+
+This ensures:
+- Icons and text are vertically centered
+- Consistent spacing between icon and text
+- Proper alignment across all screen sizes
+- Clean, professional appearance
+
+### New File Created
+- `client/src/pages/DeviceDetailsPage.css` - Complete styling for device details page with properly aligned headings

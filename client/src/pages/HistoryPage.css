@@ -17,6 +17,9 @@
 }
 
 .history-page h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   font-size: 2.5rem;
   margin-bottom: 2rem;
   text-shadow: 0 0 10px var(--neon-green);
@@ -289,6 +292,9 @@
 }
 
 .telemetry-chart h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   color: #4CC9F0;
   margin-bottom: 1.5rem;
   font-size: 1.5rem;
@@ -324,6 +330,9 @@
 }
 
 .telemetry-table h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   color: #4CC9F0;
   margin-bottom: 1rem;
   font-size: 1.5rem;

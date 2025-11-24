@@ -71,7 +71,7 @@
 .devices-section h2 {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   font-size: 2rem;
   color: #4CC9F0;
   margin-bottom: 1.5rem;
@@ -206,10 +206,10 @@
 .notifications-panel h2 {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   font-size: 1.5rem;
   color: #4CC9F0;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   text-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
 }
 
@@ -224,8 +224,9 @@
 
 .notification-item {
   display: flex;
-  gap: 1rem;
-  padding: 1rem;
+  align-items: flex-start;
+  gap: 1.5rem;
+  padding: 1.25rem;
   background: rgba(76, 201, 240, 0.05);
   border: 1px solid rgba(76, 201, 240, 0.2);
   border-radius: 12px;
@@ -248,13 +249,29 @@
 }
 
 .notif-icon {
-  font-size: 1.5rem;
+  font-size: 2rem;
+  line-height: 1;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+.notif-content {
+  flex: 1;
+  min-width: 0;
 }
 
 .notif-content h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 1rem;
   color: #4CC9F0;
-  margin: 0 0 0.25rem 0;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.4;
 }
 
 .notif-content p {

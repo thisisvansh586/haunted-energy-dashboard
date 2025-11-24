@@ -37,6 +37,9 @@
 }
 
 .notifications-header h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   font-size: 2.5rem;
   margin: 0;
   text-shadow: 0 0 10px var(--neon-green);
